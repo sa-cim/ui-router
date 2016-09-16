@@ -1,6 +1,6 @@
 /**
  * State-based routing for AngularJS
- * @version v0.3.1
+ * @version v0.3.1-dev-2016-09-16
  * @link http://angular-ui.github.com/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -4445,6 +4445,11 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
           if (isString(stateOrName)) {
             var ref = parseStateRef(stateOrName, $state.current.name);
             addState(ref.state, $scope.$eval(ref.paramExpr), activeClass);
+          } else if(isArray(stateOrName)){
+            forEach(stateOrName, function(value){
+              var ref = parseStateRef(value, $state.current.name);
+              addState(ref.state, $scope.$eval(ref.paramExpr), activeClass);
+            });
           }
         });
       }
@@ -4503,19 +4508,21 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
 
       // Update route state
       function update() {
+        var classes = [];
         for (var i = 0; i < states.length; i++) {
           if (anyMatch(states[i].state, states[i].params)) {
-            addClass($element, activeClasses[states[i].hash]);
+            classes.push(activeClasses[states[i].hash]);
           } else {
             removeClass($element, activeClasses[states[i].hash]);
           }
 
           if (exactMatch(states[i].state, states[i].params)) {
-            addClass($element, activeEqClass);
+            classes.push(activeEqClass);
           } else {
             removeClass($element, activeEqClass);
           }
         }
+        $element.addClass(classes.join(" "));
       }
 
       function addClass(el, className) { $timeout(function () { el.addClass(className); }); }
