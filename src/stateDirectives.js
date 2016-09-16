@@ -266,13 +266,14 @@ function $StateRefDynamicDirective($state, $timeout) {
  *
  * It is also possible to pass ui-sref-active an expression that evaluates
  * to an object hash, whose keys represent active class names and whose
- * values represent the respective state names/globs.
+ * values represent the respective state names/globs, or an array of state names/globs.
  * ui-sref-active will match if the current active state **includes** any of
  * the specified state names/globs, even the abstract ones.
  *
  * @Example
  * Given the following template, with "admin" being an abstract state:
  * <pre>
+ * <div ui-sref-active="{'active': ['admin.*', 'app.user']}">
  * <div ui-sref-active="{'active': 'admin.*'}">
  *   <a ui-sref-active="active" ui-sref="admin.roles">Roles</a>
  * </div>
@@ -322,6 +323,11 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
           if (isString(stateOrName)) {
             var ref = parseStateRef(stateOrName, $state.current.name);
             addState(ref.state, $scope.$eval(ref.paramExpr), activeClass);
+          } else if(isArray(stateOrName)){
+            forEach(stateOrName, function(value){
+              var ref = parseStateRef(value, $state.current.name);
+              addState(ref.state, $scope.$eval(ref.paramExpr), activeClass);
+            });
           }
         });
       }
@@ -380,19 +386,21 @@ function $StateRefActiveDirective($state, $stateParams, $interpolate) {
 
       // Update route state
       function update() {
+        var classes = [];
         for (var i = 0; i < states.length; i++) {
           if (anyMatch(states[i].state, states[i].params)) {
-            addClass($element, activeClasses[states[i].hash]);
+            classes.push(activeClasses[states[i].hash]);
           } else {
             removeClass($element, activeClasses[states[i].hash]);
           }
 
           if (exactMatch(states[i].state, states[i].params)) {
-            addClass($element, activeEqClass);
+            classes.push(activeEqClass);
           } else {
             removeClass($element, activeEqClass);
           }
         }
+        $element.addClass(classes.join(" "));
       }
 
       function addClass(el, className) { $timeout(function () { el.addClass(className); }); }

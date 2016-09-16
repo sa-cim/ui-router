@@ -743,6 +743,22 @@ describe('uiSrefActive', function() {
       expect(el[0].className).not.toMatch(/contacts/);
     }));
 
+    it('should support <className, [stateOrName]> pairs', inject(function($compile, $rootScope, $state, $q) {
+      el = $compile('<div ui-sref-active="{active: [\'contacts.*\', \'admin.roles({page: 1})\']}"></div>')($rootScope);
+      $state.transitionTo('contacts');
+      $q.flush();
+      timeoutFlush();
+      expect(el[0].className).toMatch(/active/);
+      $state.transitionTo('contacts.item.edit', { id: 1 });
+      $q.flush();
+      timeoutFlush();
+      expect(el[0].className).not.toMatch(/active/);
+      $state.transitionTo('admin.roles', {page: 1});
+      $q.flush();
+      timeoutFlush();
+      expect(el[0].className).toMatch(/active/);
+    }));
+
     it('should update the active classes when compiled', inject(function($compile, $rootScope, $document, $state, $q) {
       $state.transitionTo('admin.roles');
       $q.flush();
