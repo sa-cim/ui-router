@@ -1,22 +1,20 @@
-# master only
-build
-build_packages
-site
-
 # common
 node_modules
 bower_components
 .DS_Store
 *~
-.tscache
-.baseDir.ts
+**/.*
 
 # webstorm files
-.idea
 idea-out
 *.iml
 *.ipr
 *.iws
 
-# generate doc to _doc; copy to proper gh-pages dir
+# generated files
 _doc
+.testlib
+lib
+lib-esm
+release
+stats.html

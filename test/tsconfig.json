@@ -7,13 +7,11 @@
     "target": "es5",
     "lib": [ "es6", "dom" ],
     "allowSyntheticDefaultImports": true,
-    "outDir": "lib",
-    "declaration": true,
-    "sourceMap": true
+    "outDir": "../.testlib",
+    "declaration": false,
+    "sourceMap": false
   },
-  "files": [
-    "src/index.ts",
-    "src/legacy/stateEvents.ts",
-    "src/legacy/resolveService.ts"
+  "include": [
+    "*.ts"
   ]
 }
