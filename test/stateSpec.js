@@ -37,10 +37,7 @@ describe('state', function () {
       ISS2101 = { params: { bar: { squash: false, value: 'qux'}}, url: '/2101/{bar:string}' };
       AppInjectable = {};
 
-  beforeEach(module(function ($stateProvider, $provide, $exceptionHandlerProvider) {
-    var x = this;
-    var foo = jasmine;
-    $exceptionHandlerProvider.mode('log')
+  beforeEach(module(function ($stateProvider, $provide) {
     angular.forEach([ A, B, C, D, DD, E, H, HH, HHH ], function (state) {
       state.onEnter = callbackLogger('onEnter');
       state.onExit = callbackLogger('onExit');
@@ -514,6 +511,7 @@ describe('state', function () {
       expect(log).toBe(
         '$stateChangeStart(B,A);' +
         '$stateChangeStart(C,A);' +
+        '$stateChangeCancel(B,A);' +
         '$stateChangeSuccess(C,A);');
     }));
 
@@ -521,12 +519,13 @@ describe('state', function () {
       initStateTo(A);
       logEvents = true;
 
-      var superseded = $state.transitionTo(B, {});
-      $state.transitionTo(A, {});
+      // added direction param to help future contributors debug state events
+      var superseded = $state.transitionTo(B, {direction: 'A to B'});
+      $state.transitionTo(A, { direction: 'A to A'});
       $q.flush();
       expect($state.current).toBe(A);
       expect(resolvedError(superseded)).toBeTruthy();
-      expect(log).toBe('$stateChangeStart(B,A);');
+      expect(log).toBe('$stateChangeStart(B,A);$stateChangeCancel(B,A);');
     }));
 
     it('aborts pending transitions when aborted from callbacks', inject(function ($state, $q) {
@@ -1665,6 +1664,7 @@ describe('exceptions in onEnter', function() {
         });
   }));
 
+  // Test for #2772
   it('sends $stateChangeError for exceptions in onEnter', inject(function ($state, $q, $rootScope) {
     var called;
     $rootScope.$on('$stateChangeError', function (ev, to, toParams, from, fromParams, options) {
